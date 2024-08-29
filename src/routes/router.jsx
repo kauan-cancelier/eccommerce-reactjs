@@ -2,10 +2,10 @@ import {
     createBrowserRouter,
 } from "react-router-dom";
 
-
 import Login from "../pages/Login";
 import Home from "../pages/home/Home";
 import Products from "../pages/products/Products";
+import PrivateRoute from './PrivateRoute'; 
 
 const router = createBrowserRouter([
 
@@ -19,12 +19,20 @@ const router = createBrowserRouter([
     },
     {
         path: "/home",
-        element: <Home />
+        element: (
+            <PrivateRoute>
+                <Home />
+            </PrivateRoute>
+        ),
     },
     {
         path: "/products",
-        element: <Products />
+        element: (
+            <PrivateRoute>
+                <Products />
+            </PrivateRoute>
+        ),
     }
 ]);
 
-export default router
+export default router;

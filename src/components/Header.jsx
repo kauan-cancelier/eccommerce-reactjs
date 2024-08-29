@@ -1,6 +1,7 @@
 import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap'
 import api from '../api/api'
 import { useEffect, useState } from 'react'
+import TOKEN_JWT from '../Cookie';
 
 function Header() {
 
@@ -9,15 +10,19 @@ function Header() {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await api.get('/categories')
-                setData(response.data)
+                const response = await api.get('/categories', {
+                    headers: {
+                        Authorization: `Bearer ${TOKEN_JWT}` 
+                    }
+                });
+                setData(response.data); 
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
-        }
+        };
 
-        fetchCategories()
-    }, [])
+        fetchCategories();
+    }, []);
 
     return (
         <Navbar bg="dark" data-bs-theme="dark">

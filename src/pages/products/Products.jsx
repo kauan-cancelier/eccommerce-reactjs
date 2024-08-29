@@ -1,44 +1,51 @@
-import { Card, Container, ListGroup } from "react-bootstrap";
-import Header from "../../components/Header";
-import { useEffect, useState } from "react";
-import api from "../../api/api";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Card, Container, ListGroup } from "react-bootstrap"
+import Header from "../../components/Header"
+import { useEffect, useState } from "react"
+import api from "../../api/api"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import TOKEN_JWT from "../../Cookie"
 
 function Products() {
-    const [searchParams] = useSearchParams();
-    const category = searchParams.get("category");
-    const [data, setData] = useState([]);
-    const navigate = useNavigate();
+    const [searchParams] = useSearchParams()
+    const category = searchParams.get("category")
+    const [data, setData] = useState([])
+    const navigate = useNavigate()
 
     useEffect(() => {
-        api.get(`/products?category=${category}`).then(response => {
+        api.get(`/products?category=${category}`, {
+            headers: {
+                Authorization: `Bearer ${TOKEN_JWT}`
+            }
+        }).then(response => {
             const productsWithImages = response.data.map(product => ({
                 ...product,
                 imageUrl: null,
-            }));
-            setData(productsWithImages);
+            }))
+            setData(productsWithImages)
 
             productsWithImages.forEach(product => {
-                loadProductImage(product.id);
-            });
+                loadProductImage(product.id)
+            })
         }).catch(err => {
-            alert(err);
-        });
-    }, [category]);
+            console.log(err.response.data)
+        })
+    }, [category])
 
     const loadProductImage = (id) => {
-        api.get(`products/${id}/images`, { responseType: 'blob' }).then(response => {
-            const imageUrl = URL.createObjectURL(response.data);
+        api.get(`products/${id}/images`, { responseType: 'blob', headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('jwt-token')}`
+        } }).then(response => {
+            const imageUrl = URL.createObjectURL(response.data)
 
             setData(prevData =>
                 prevData.map(product =>
                     product.id === id ? { ...product, imageUrl: imageUrl } : product
                 )
-            );
+            )
         }).catch(err => {
-            console.log(err);
-        });
-    };
+            console.log(err)
+        })
+    }
 
     const loadProductsCards = () => {
         return data.map(p => (
@@ -62,8 +69,8 @@ function Products() {
                     </Card.Body>
                 </Card.Body>
             </Card>
-        ));
-    };
+        ))
+    }
 
     return (
         <>
@@ -76,7 +83,7 @@ function Products() {
                 </div>
             </Container>
         </>
-    );
+    )
 }
 
-export default Products;
+export default Products

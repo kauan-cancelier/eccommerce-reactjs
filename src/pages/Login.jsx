@@ -4,19 +4,25 @@ import api from "../api/api"
 import { useNavigate } from "react-router-dom"
 
 function Login() {
-
-    const [email, setEmail] = useState()
-    const [password, setPassword] = useState()
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [error, setError] = useState(null)
     const navigate = useNavigate()
+            sessionStorage.removeItem('jwt-token') 
 
-    const login = () => {
-        console.log('clicou')
-        api.post('/users/login', { email: email, password: password }).then(response => {
+    
+
+    const login = async () => {
+        try {
+            const response = await api.post('/auth', { email, password })
+            document.cookie= `jwt-token=${response.data.token}; path=/; secure;`
             navigate('/home')
-        }).catch(error => {
-            console.log(error)
-        })
+        } catch (error) {
+            setError("Falha no login. Verifique suas credenciais.")
+            sessionStorage.removeItem('jwt-token')
+        }
     }
+    
 
     return (
         <Container>
@@ -25,14 +31,25 @@ function Login() {
             <h1>Login</h1>
             <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label>Email</Form.Label>
-                <Form.Control type="email" required onChange={(e) => setEmail(e.target.value)} />
-
+                <Form.Control
+                    type="email"
+                    value={email}
+                    required
+                    onChange={(e) => setEmail(e.target.value)}
+                />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPassword">
                 <Form.Label>Senha</Form.Label>
-                <Form.Control type="password" required onChange={(e => setPassword(e.target.value))} />
+                <Form.Control
+                    type="password"
+                    value={password}
+                    required
+                    onChange={(e) => setPassword(e.target.value)}
+                />
             </Form.Group>
+
+            {error && <p style={{ color: 'red' }}>{error}</p>}
 
             <Col>
                 <Button variant="primary" onClick={login}>
